@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./App.css";
 import io from "socket.io-client";
 const socket = io("http://localhost:3001");
 
@@ -7,6 +6,7 @@ function App() {
  const [socketId, setSocketId] = useState("");
  const [message, setMessage] = useState("");
  const [users, setUsers] = useState([]);
+ const [rooms, setRooms] = useState([]);
  const [joinedRoom, setJoinedRoom] = useState(false);
  const [room, setRoom] = useState("");
  const [chat, setChat] = useState([]);
@@ -29,6 +29,12 @@ function App() {
    setUsers(users);
   });
 
+  socket.on("getAllRooms", (rooms) => {
+   setRooms(rooms);
+  });
+  socket.on("updateRooms", (rooms) => {
+   setRooms(rooms);
+  });
 
   socket.on("chat", (payload) => {
    setChat(payload.chat);
@@ -74,16 +80,17 @@ function App() {
 
  return (
   <>
-   <h1 className="main_heading">Chat App</h1>
-   <h3 className="roomjoined">
-    {joinedRoom === true ? `Room: ${room}` : "You are not joined in a room yet"}
+   <h1>Chat App</h1>
+   <h1> welcome: {socketId}</h1>
+   <h3>
+    {joinedRoom === true ? `you are in room: ${room}` : "You are not in a room"}
    </h3>
 
    {!joinedRoom && (
-    <div className="container">
-     <div className="users-container">
-      <h2 className="users_heading">Online Users:</h2>
-      <ul className="users">
+    <div>
+     <div>
+      <h2>Online:</h2>
+      <ul>
        {users.map((user) => {
         return (
          <li className="user" key={user}>
@@ -93,13 +100,13 @@ function App() {
        })}
       </ul>
      </div>
-     <div className="rooms-container">
-      <h2 className="rooms_heading">Available groups:</h2>
+     <div>
+      <h2>Rooms available are:</h2>
 
       {rooms.length === 0 ? (
-       <h3 className="no_rooms">No Rooms!!</h3>
+       <h4 >No Rooms available! Create a room from here </h4>
       ) : (
-       <ul className="rooms">
+       <ul>
         {rooms.map((room) => {
          return (
           <li key={room.id} onClick={() => joinRoom(room)}>
@@ -138,7 +145,7 @@ function App() {
      <form className="chat-form" onSubmit={(e) => e.preventDefault()}>
       <input
        type="text"
-       placeholder="Your message ..."
+       placeholder="Your message is: "
        autoFocus
        onChange={(e) => {
         setMessage(e.target.value);
@@ -146,8 +153,8 @@ function App() {
        value={message}
       />
 
-      <button className="send_btn" type="submit" onClick={() => sendMessage()}>
-       Send
+      <button type="submit" onClick={() => sendMessage()}>
+       Send from here
       </button>
      </form>
     </>
