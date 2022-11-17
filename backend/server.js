@@ -2,19 +2,23 @@ const app = require("express")();
 const server = require("http").createServer(app);
 const PORT = 3001;
 const uuid = require("uuid");
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+ cors: {
+  origin: "*",
+ },
+});
 
 let users = [];
 let rooms = [];
 
 io.on("connection", (socket) => {
- console.log(`User connected: ${socket.id}`);
+ console.log(`User is: ${socket.id}`);
 
  socket.emit("me", socket.id);
  users.push(socket.id);
 
  socket.on("disconnect", () => {
-  console.log(`User ${socket.id} disconnected.`);
+  console.log(`User ${socket.id} left.`);
   users = users.filter((user) => user !== socket.id);
   console.log(users);
   socket.disconnect();
@@ -57,5 +61,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
- console.log(`Server on port ${PORT}`);
+ console.log(`Server listening on port ${PORT}`);
 });
